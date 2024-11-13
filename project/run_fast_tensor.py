@@ -29,8 +29,9 @@ class Network(minitorch.Module):
         self.layer3 = Linear(hidden, 1, backend)
 
     def forward(self, x):
-        # TODO: Implement for Task 3.5.
-        raise NotImplementedError("Need to implement for Task 3.5")
+        middle = self.layer1.forward(x).relu()
+        end = self.layer2.forward(middle).relu()
+        return self.layer3.forward(end).sigmoid()
 
 
 class Linear(minitorch.Module):
@@ -43,8 +44,19 @@ class Linear(minitorch.Module):
         self.out_size = out_size
 
     def forward(self, x):
-        # TODO: Implement for Task 3.5.
-        raise NotImplementedError("Need to implement for Task 3.5")
+        """weight matrix mult input then add bias, output a tensor"""
+        # type Parameter .value is the tensor
+        # inputs = list of tensors, each representing a data point initially
+        # return self.weights.value * inputs + self.bias.value
+
+        # initially call fwd on dataset which has shape (num_pts, 2) = (num_pts, in_size) for first layer
+        num_pts, in_size = x.shape
+        # first layer weight has shape (in_size, out_size) = (2, hidden_layers)
+        # want to broadcast so that (1, in_size, out_size) and (num_pts, in_size, 1)
+        matix_mul = (self.weights.value.view(1, in_size, self.out_size) * x.view(num_pts, in_size, 1)).sum(1).view(num_pts, self.out_size)
+        # result is (num_pts, out_size), i.e. one output for each datapoint
+
+        return matix_mul + self.bias.value.view(1, self.out_size)
 
 
 class FastTrain:
