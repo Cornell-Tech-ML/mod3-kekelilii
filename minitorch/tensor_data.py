@@ -71,12 +71,11 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
     """
     # Loop through dimensions in reverse order (last to first)
     # TODO: Implement for Task 2.1.
-    tmp_product = 1.0  # do not overwrite parallel loop index, see numba.core.errors.UnsupportedRewriteError
-    for i_ in range(len(shape) - 1, -1, -1):
-        out_index[i_] = int(
-            ordinal % (shape[i_] * tmp_product) // tmp_product
-        )  # important
-        tmp_product *= shape[i_]
+    cur_ord = ordinal + 0  # do not overwrite parallel loop index, see numba.core.errors.UnsupportedRewriteError
+    for i in range(len(shape) - 1, -1, -1):
+        sh = shape[i]
+        out_index[i] = int(cur_ord % sh)
+        cur_ord //= sh
 
 
 def broadcast_index(
@@ -112,39 +111,33 @@ def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
     """Broadcast two shapes to create a new union shape.
 
     Args:
-    ----
         shape1 : first shape
         shape2 : second shape
-
     Returns:
-    -------
         broadcasted shape
-
     Raises:
-    ------
         IndexingError : if cannot broadcast
 
     """
-    # Reverse the shapes to align dimensions from the right
-    shape1 = list(shape1)[::-1]
-    shape2 = list(shape2)[::-1]
-
-    max_len = max(len(shape1), len(shape2))
-    broadcast_shape = []
-
-    for i in range(max_len):
-        dim1 = shape1[i] if i < len(shape1) else 1
-        dim2 = shape2[i] if i < len(shape2) else 1
-        if dim1 == dim2:
-            broadcast_shape.append(dim1)
-        elif dim1 == 1:
-            broadcast_shape.append(dim2)
-        elif dim2 == 1:
-            broadcast_shape.append(dim1)
+    # ASSIGN2.2
+    a, b = shape1, shape2
+    m = max(len(a), len(b))
+    c_rev = [0] * m
+    a_rev = list(reversed(a))
+    b_rev = list(reversed(b))
+    for i in range(m):
+        if i >= len(a):
+            c_rev[i] = b_rev[i]
+        elif i >= len(b):
+            c_rev[i] = a_rev[i]
         else:
-            raise IndexingError("Cannot broadcast shapes.")
+            c_rev[i] = max(a_rev[i], b_rev[i])
+            if a_rev[i] != c_rev[i] and a_rev[i] != 1:
+                raise IndexingError(f"Broadcast failure {a} {b}")
+            if b_rev[i] != c_rev[i] and b_rev[i] != 1:
+                raise IndexingError(f"Broadcast failure {a} {b}")
+    return tuple(reversed(c_rev))
 
-    return tuple(broadcast_shape[::-1])
 
 
 def strides_from_shape(shape: UserShape) -> UserStrides:
