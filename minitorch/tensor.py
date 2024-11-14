@@ -30,6 +30,7 @@ from .tensor_functions import (
     Sigmoid,
     Sum,
     View,
+    tensor,
 )
 
 
@@ -379,9 +380,7 @@ class Tensor:
 
     def view(self, *shape: int) -> Tensor:
         """Reshape the tensor to the specified shape."""
-        return View.apply(
-            self, Tensor.make(list(shape), (len(shape),), backend=self.backend)
-        )
+        return View.apply(self, tensor(list(shape)))
 
     def zero_grad_(self) -> None:
         """Resets the gradient to None."""

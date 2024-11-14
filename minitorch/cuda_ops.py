@@ -457,15 +457,19 @@ def _tensor_matrix_multiply(
     #    b) Copy into shared memory for b matrix
     #    c) Compute the dot produce for position c[i, j]
     # TODO: Implement for Task 3.4.
+    # @https://github.com/minitorch/minitorch-module-3-zmvictor/blob/master/minitorch/cuda_ops.py
     M, N, K = out_shape[1], out_shape[2], a_shape[-1]
     acc = 0.0  # accumulator
     # 2. To calculate out[i, j], we need a[i, ...] and b[..., j]
     # Thus, each thread needs to copy one row of a and one column of b
+    # 对于每个block来说，最终的结果就是一个out matrix里面block大小的结果。不同的block计算不同位置的结果，铺满整个out matrix
     for start in range(0, K, BLOCK_DIM):  # start is the starting index of the block
         # build guards to make sure we don't copy values out of bounds
         a_k = start + pj
         # copy a[i, start + pj] to a_shared[pi, pj]
         if i < M and a_k < K:
+            # thread在外部循环时，每次fetch大矩阵的一个值过来。想象在a矩阵中block按一行的顺序往右移动，
+            # 在b矩阵中block按一列的顺序往下移动，每次移动一个block大小，直到移动到矩阵的边界
             a_shared[pi, pj] = a_storage[
                 batch * a_batch_stride + i * a_strides[1] + a_k * a_strides[2]
             ]
@@ -482,11 +486,12 @@ def _tensor_matrix_multiply(
         for k in range(BLOCK_DIM):
             if start + k < K:
                 acc += a_shared[pi, k] * b_shared[k, pj]
+        # 每个thread计算出一个block大小的矩阵的一行、一列乘积和后，每次外部循环就是拓展该行、该列在原矩阵的位置，
+        # 最终能够计算出大矩阵的一行、一列的乘积和
     # 4. Copy acc to out[i, j]
     # Note: the number of threads is not necessarily equal to the number of elements in out
     # we need to use guard to make sure we don't copy values out of bounds
     if i < M and j < N:
         out[batch * out_strides[0] + i * out_strides[1] + j * out_strides[2]] = acc
-
-
+    # raise NotImplementedError("Need to implement for Task 3.4")
 tensor_matrix_multiply = jit(_tensor_matrix_multiply)

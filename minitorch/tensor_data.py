@@ -70,12 +70,13 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
 
     """
     # Loop through dimensions in reverse order (last to first)
-    cur_ord = ordinal + 0
-    for i in range(len(shape) - 1, -1, -1):
-        # Calculate the current index for dimension `i`
-        out_index[i] = int(cur_ord % shape[i])
-        # Update ordinal for the next iteration
-        cur_ord //= shape[i]
+    # TODO: Implement for Task 2.1.
+    tmp_product = 1.0  # do not overwrite parallel loop index, see numba.core.errors.UnsupportedRewriteError
+    for i_ in range(len(shape) - 1, -1, -1):
+        out_index[i_] = int(
+            ordinal % (shape[i_] * tmp_product) // tmp_product
+        )  # important
+        tmp_product *= shape[i_]
 
 
 def broadcast_index(
