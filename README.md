@@ -34,15 +34,15 @@ The files that will be synced are:
 
 ## Task 3.1 NUMBA diagnostics
 # Map
-<img src="map.png" width="50%">
+<img src="map.png" width="70%">
 
 # Zip
-<img src="zip.png" width="50%">
+<img src="zip.png" width="70%">
 
 # Reduce
-<img src="reduce.png" width="50%">
+<img src="reduce.png" width="70%">
 
 ## Task 3.2 Tensor-matrix multiply
-<img src="mm.png" width="50%">
+<img src="mm.png" width="70%">
 
 
