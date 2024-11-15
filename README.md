@@ -32,17 +32,17 @@ The files that will be synced are:
         minitorch/tensor_data.py minitorch/tensor_functions.py minitorch/tensor_ops.py minitorch/operators.py minitorch/scalar.py minitorch/scalar_functions.py minitorch/module.py minitorch/autodiff.py minitorch/module.py project/run_manual.py project/run_scalar.py project/run_tensor.py minitorch/operators.py minitorch/module.py minitorch/autodiff.py minitorch/tensor.py minitorch/datasets.py minitorch/testing.py minitorch/optim.py
 
 
-## Task 3.1 NUMBA diagnostics
-# Map
+# Task 3.1 NUMBA diagnostics
+## Map
 <img src="map.png" width="70%">
 
-# Zip
+## Zip
 <img src="zip.png" width="70%">
 
-# Reduce
+## Reduce
 <img src="reduce.png" width="70%">
 
-## Task 3.2 Tensor-matrix multiply
+# Task 3.2 Tensor-matrix multiply
 <img src="mm.png" width="70%">
 
 
