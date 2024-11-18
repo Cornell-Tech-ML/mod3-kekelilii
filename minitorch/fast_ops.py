@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 Fn = TypeVar("Fn")
 
 
-def njit(fn: Fn, **kwargs: Any) -> Fn:
+def njit(fn: Fn, **kwargs: Any) -> Fn:  # noqa: D103
     return _njit(inline="always", **kwargs)(fn)  # type: ignore
 
 
@@ -168,7 +168,9 @@ def tensor_map(
         in_shape: Shape,
         in_strides: Strides,
     ) -> None:
-        if np.array_equal(out_shape, in_shape) and np.array_equal(out_strides, in_strides):
+        if np.array_equal(out_shape, in_shape) and np.array_equal(
+            out_strides, in_strides
+        ):
             for i in prange(len(out)):
                 out[i] = fn(in_storage[i])
         else:
@@ -180,6 +182,7 @@ def tensor_map(
                 j = index_to_position(in_index, in_strides)
                 o = index_to_position(out_index, out_strides)
                 out[o] = fn(in_storage[j])
+
     return njit(_map, parallel=True)  # type: ignore
 
 
@@ -217,11 +220,15 @@ def tensor_zip(
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        if np.array_equal(out_shape, a_shape) and np.array_equal(out_strides, a_strides) and np.array_equal(out_shape, b_shape) and np.array_equal(out_strides, b_strides):
+        if (
+            np.array_equal(out_shape, a_shape)
+            and np.array_equal(out_strides, a_strides)
+            and np.array_equal(out_shape, b_shape)
+            and np.array_equal(out_strides, b_strides)
+        ):
             for i in prange(len(out)):
                 out[i] = fn(a_storage[i], b_storage[i])
         else:
-            
             for i in prange(len(out)):
                 out_index = np.zeros(MAX_DIMS, np.int32)
                 a_index = np.zeros(MAX_DIMS, np.int32)
@@ -266,8 +273,6 @@ def tensor_reduce(
         a_strides: Strides,
         reduce_dim: int,
     ) -> None:
-        
-
         for ordinal in prange(out.size):
             reduce_size = a_shape[reduce_dim]
             out_index: Index = np.zeros(MAX_DIMS, dtype=np.int32)
@@ -330,8 +335,8 @@ def _tensor_matrix_multiply(
         None : Fills in `out`
 
     """
-    a_batch_stride = a_strides[0] if a_shape[0] > 1 else 0
-    b_batch_stride = b_strides[0] if b_shape[0] > 1 else 0
+    a_batch_stride = a_strides[0] if a_shape[0] > 1 else 0  # noqa: F841
+    b_batch_stride = b_strides[0] if b_shape[0] > 1 else 0  # noqa: F841
 
     # Ensure compatibility
     assert a_shape[-1] == b_shape[-2]
@@ -353,7 +358,6 @@ def _tensor_matrix_multiply(
             a_position = index_to_position(a_index, a_strides)
             b_position = index_to_position(b_index, b_strides)
             out[i] += a_storage[a_position] * b_storage[b_position]
-
 
 
 tensor_matrix_multiply = njit(_tensor_matrix_multiply, parallel=True)

@@ -379,7 +379,7 @@ Epoch  290  loss  3.270426943058927 correct 44 <br>
 Epoch  300  loss  2.5206361344657973 correct 44 <br>
 Epoch  310  loss  2.805335177647865 correct 47 <br>
 Epoch  320  loss  3.1941889190482486 correct 47 <br>
-Epoch  330  loss  2.1896048690041163 correct 49 <br>    
+Epoch  330  loss  2.1896048690041163 correct 49 <br>
 Epoch  340  loss  3.986203065897374 correct 49 <br>
 Epoch  350  loss  2.481113422297367 correct 49 <br>
 Epoch  360  loss  4.047924982991801 correct 45 <br>

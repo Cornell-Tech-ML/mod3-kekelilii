@@ -29,11 +29,11 @@ FakeCUDAKernel = Any
 Fn = TypeVar("Fn")
 
 
-def device_jit(fn: Fn, **kwargs) -> Fn:
+def device_jit(fn: Fn, **kwargs) -> Fn:  # noqa: ANN003, D103
     return _jit(device=True, **kwargs)(fn)  # type: ignore
 
 
-def jit(fn, **kwargs) -> FakeCUDAKernel:
+def jit(fn, **kwargs) -> FakeCUDAKernel:  # noqa: ANN001, ANN003, D103
     return _jit(**kwargs)(fn)  # type: ignore
 
 
@@ -66,7 +66,7 @@ class CudaOps(TensorOps):
         return ret
 
     @staticmethod
-    def zip(fn: Callable[[float, float], float]) -> Callable[[Tensor, Tensor], Tensor]:
+    def zip(fn: Callable[[float, float], float]) -> Callable[[Tensor, Tensor], Tensor]:  # noqa: D102
         cufn: Callable[[float, float], float] = device_jit(fn)
         f = tensor_zip(cufn)
 
@@ -83,7 +83,7 @@ class CudaOps(TensorOps):
         return ret
 
     @staticmethod
-    def reduce(
+    def reduce(  # noqa: D102
         fn: Callable[[float, float], float], start: float = 0.0
     ) -> Callable[[Tensor, int], Tensor]:
         cufn: Callable[[float, float], float] = device_jit(fn)
@@ -105,7 +105,7 @@ class CudaOps(TensorOps):
         return ret
 
     @staticmethod
-    def matrix_multiply(a: Tensor, b: Tensor) -> Tensor:
+    def matrix_multiply(a: Tensor, b: Tensor) -> Tensor:  # noqa: D102
         # Make these always be a 3 dimensional multiply
         both_2d = 0
         if len(a.shape) == 2:
@@ -180,6 +180,7 @@ def tensor_map(
         broadcast_index(out_index, out_shape, in_shape, in_index)
         out_pos = index_to_position(out_index, out_strides)
         out[out_pos] = fn(in_storage[index_to_position(in_index, in_strides)])
+
     return cuda.jit()(_map)  # type: ignore
 
 
@@ -229,7 +230,6 @@ def tensor_zip(
         bj = index_to_position(b_index, b_strides)
         out[o] = fn(a_storage[aj], b_storage[bj])
 
-
     return cuda.jit()(_zip)  # type: ignore
 
 
@@ -276,7 +276,7 @@ def _sum_practice(out: Storage, a: Storage, size: int) -> None:
 jit_sum_practice = cuda.jit()(_sum_practice)
 
 
-def sum_practice(a: Tensor) -> TensorData:
+def sum_practice(a: Tensor) -> TensorData:  # noqa: D103
     (size,) = a.shape
     threadsperblock = THREADS_PER_BLOCK
     blockspergrid = (size // THREADS_PER_BLOCK) + 1
@@ -391,10 +391,11 @@ def _mm_practice(out: Storage, a: Storage, b: Storage, size: int) -> None:
         tmp += cache_a[x, i] * cache_b[i, y]
     out[x * size + y] = tmp
 
+
 jit_mm_practice = jit(_mm_practice)
 
 
-def mm_practice(a: Tensor, b: Tensor) -> TensorData:
+def mm_practice(a: Tensor, b: Tensor) -> TensorData:  # noqa: D103
     (size, _) = a.shape
     threadsperblock = (THREADS_PER_BLOCK, THREADS_PER_BLOCK)
     blockspergrid = 1
@@ -488,4 +489,6 @@ def _tensor_matrix_multiply(
     if i < M and j < N:
         out[batch * out_strides[0] + i * out_strides[1] + j * out_strides[2]] = acc
     # raise NotImplementedError("Need to implement for Task 3.4")
+
+
 tensor_matrix_multiply = jit(_tensor_matrix_multiply)

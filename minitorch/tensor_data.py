@@ -71,7 +71,9 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
     """
     # Loop through dimensions in reverse order (last to first)
     # TODO: Implement for Task 2.1.
-    cur_ord = ordinal + 0  # do not overwrite parallel loop index, see numba.core.errors.UnsupportedRewriteError
+    cur_ord = (
+        ordinal + 0
+    )  # do not overwrite parallel loop index, see numba.core.errors.UnsupportedRewriteError
     for i in range(len(shape) - 1, -1, -1):
         sh = shape[i]
         out_index[i] = int(cur_ord % sh)
@@ -107,10 +109,11 @@ def broadcast_index(
     return None
 
 
-def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
+def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:  # noqa: D417
     """Broadcast two shapes to create a new union shape.
 
     Args:
+    ----
         shape1 : first shape
         shape2 : second shape
     Returns:
@@ -137,7 +140,6 @@ def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
             if b_rev[i] != c_rev[i] and b_rev[i] != 1:
                 raise IndexingError(f"Broadcast failure {a} {b}")
     return tuple(reversed(c_rev))
-
 
 
 def strides_from_shape(shape: UserShape) -> UserStrides:
